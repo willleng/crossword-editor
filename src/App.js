@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { generateNumberedGrid } from './generateNumberedGrid';
 
 function App() {
   const [size, setSize] = useState(5);
@@ -9,6 +10,12 @@ function App() {
       Array.from({ length: size }, () => ({ value: '', black: false }))
     );
   }
+
+  // Automatically update clue numbers when the grid or size changes
+  useEffect(() => {
+    const numbered = generateNumberedGrid(grid);
+    setGrid(numbered);
+  }, [size]);
 
   const handleSizeChange = (e) => {
     const newSize = parseInt(e.target.value);
@@ -22,13 +29,13 @@ function App() {
     const newGrid = [...grid];
     newGrid[row][col].black = !newGrid[row][col].black;
     newGrid[row][col].value = '';
-    setGrid(newGrid);
+    setGrid(generateNumberedGrid(newGrid));
   };
 
   const handleInput = (e, row, col) => {
     const newGrid = [...grid];
     newGrid[row][col].value = e.target.value.toUpperCase().slice(0, 1);
-    setGrid(newGrid);
+    setGrid(generateNumberedGrid(newGrid));
   };
 
   const exportToJson = () => {
@@ -72,6 +79,7 @@ function App() {
             <div
               key={`${rIdx}-${cIdx}`}
               style={{
+                position: 'relative',
                 width: '30px',
                 height: '30px',
                 backgroundColor: cell.black ? 'black' : 'white',
@@ -81,6 +89,18 @@ function App() {
               }}
               onClick={() => toggleBlack(rIdx, cIdx)}
             >
+              {!cell.black && cell.number && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '2px',
+                    left: '2px',
+                    fontSize: '10px',
+                  }}
+                >
+                  {cell.number}
+                </div>
+              )}
               {!cell.black && (
                 <input
                   type="text"
@@ -92,6 +112,7 @@ function App() {
                     border: 'none',
                     textAlign: 'center',
                     textTransform: 'uppercase',
+                    paddingLeft: cell.number ? '10px' : '0',
                   }}
                 />
               )}
