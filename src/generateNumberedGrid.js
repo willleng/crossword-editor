@@ -1,23 +1,29 @@
 export function generateNumberedGrid(grid) {
-    const numberedGrid = grid.map(row => row.map(cell => ({ ...cell, number: null })));
-    let count = 1;
-  
-    for (let r = 0; r < grid.length; r++) {
-      for (let c = 0; c < grid[r].length; c++) {
-        if (grid[r][c].black) continue;
-  
+  let count = 1;
+  const size = grid.length;
+  const newGrid = grid.map((row, r) =>
+    row.map((cell, c) => {
+      const isBlack = cell.black;
+      let shouldNumber = false;
+
+      // Check if cell should be numbered
+      if (!isBlack) {
         const isStartOfAcross =
-          c === 0 || grid[r][c - 1].black;
+          (c === 0 || grid[r][c - 1].black) && c + 1 < size && !grid[r][c + 1].black;
         const isStartOfDown =
-          r === 0 || grid[r - 1][c].black;
-  
+          (r === 0 || grid[r - 1][c].black) && r + 1 < size && !grid[r + 1][c].black;
+
         if (isStartOfAcross || isStartOfDown) {
-          numberedGrid[r][c].number = count;
-          count++;
+          shouldNumber = true;
         }
       }
-    }
-  
-    return numberedGrid;
-  }
-  
+
+      return {
+        ...cell,
+        number: shouldNumber ? count++ : undefined,
+      };
+    })
+  );
+
+  return newGrid;
+}

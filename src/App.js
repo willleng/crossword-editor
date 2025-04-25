@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { generateNumberedGrid } from './generateNumberedGrid';
+import { extractClues } from './extractClues';
 
 function App() {
   const [size, setSize] = useState(5);
@@ -10,12 +11,6 @@ function App() {
       Array.from({ length: size }, () => ({ value: '', black: false }))
     );
   }
-
-  // Automatically update clue numbers when the grid or size changes
-  useEffect(() => {
-    const numbered = generateNumberedGrid(grid);
-    setGrid(numbered);
-  }, [size]);
 
   const handleSizeChange = (e) => {
     const newSize = parseInt(e.target.value);
@@ -29,13 +24,13 @@ function App() {
     const newGrid = [...grid];
     newGrid[row][col].black = !newGrid[row][col].black;
     newGrid[row][col].value = '';
-    setGrid(generateNumberedGrid(newGrid));
+    setGrid(newGrid);
   };
 
   const handleInput = (e, row, col) => {
     const newGrid = [...grid];
     newGrid[row][col].value = e.target.value.toUpperCase().slice(0, 1);
-    setGrid(generateNumberedGrid(newGrid));
+    setGrid(newGrid);
   };
 
   const exportToJson = () => {
@@ -51,6 +46,9 @@ function App() {
     link.download = 'puzzle.json';
     link.click();
   };
+
+  const numberedGrid = generateNumberedGrid(grid);
+  const { across, down } = extractClues(numberedGrid);
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
@@ -74,7 +72,7 @@ function App() {
           margin: '20px 0',
         }}
       >
-        {grid.map((row, rIdx) =>
+        {numberedGrid.map((row, rIdx) =>
           row.map((cell, cIdx) => (
             <div
               key={`${rIdx}-${cIdx}`}
@@ -93,9 +91,9 @@ function App() {
                 <div
                   style={{
                     position: 'absolute',
-                    top: '2px',
-                    left: '2px',
-                    fontSize: '10px',
+                    top: 0,
+                    left: 2,
+                    fontSize: '8px',
                   }}
                 >
                   {cell.number}
@@ -107,12 +105,12 @@ function App() {
                   value={cell.value}
                   onChange={(e) => handleInput(e, rIdx, cIdx)}
                   style={{
-                    width: '28px',
-                    height: '28px',
+                    width: '100%',
+                    height: '100%',
                     border: 'none',
                     textAlign: 'center',
                     textTransform: 'uppercase',
-                    paddingLeft: cell.number ? '10px' : '0',
+                    fontSize: '16px',
                   }}
                 />
               )}
@@ -124,6 +122,32 @@ function App() {
       <button onClick={exportToJson} style={{ padding: '10px 20px' }}>
         📤 Export Puzzle as JSON
       </button>
+
+      <div style={{ marginTop: '20px' }}>
+        <h2>📝 Clues</h2>
+        <div style={{ display: 'flex', gap: '40px' }}>
+          <div>
+            <h3>Across</h3>
+            <ul>
+              {across.map((clue) => (
+                <li key={`across-${clue.number}`}>
+                  <strong>{clue.number}</strong>: {clue.word}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3>Down</h3>
+            <ul>
+              {down.map((clue) => (
+                <li key={`down-${clue.number}`}>
+                  <strong>{clue.number}</strong>: {clue.word}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
