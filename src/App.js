@@ -5,11 +5,7 @@ import { extractClues } from './extractClues';
 function App() {
   const [size, setSize] = useState(5);
   const [grid, setGrid] = useState(generateEmptyGrid(5));
-  const [clues, setClues] = useState({
-    across: {},
-    down: {}
-  });
-  
+  const [clues, setClues] = useState({ across: {}, down: {} });
 
   function generateEmptyGrid(size) {
     return Array.from({ length: size }, () =>
@@ -108,7 +104,7 @@ function App() {
               {!cell.black && (
                 <input
                   type="text"
-                  value={cell.value}
+                  value={grid[rIdx][cIdx].value}
                   onChange={(e) => handleInput(e, rIdx, cIdx)}
                   style={{
                     width: '100%',
@@ -128,49 +124,50 @@ function App() {
       <button onClick={exportToJson} style={{ padding: '10px 20px' }}>
         📤 Export Puzzle as JSON
       </button>
+
       <div style={{ marginTop: '30px' }}>
-  <h2>📝 Clues</h2>
+        <h2>📝 Clues</h2>
 
-  <h3>Across</h3>
-  {Object.entries(generateNumberedGrid(grid).across).map(([number, { row, col }]) => (
-    <div key={`across-${number}`}>
-      <label>
-        {number}. <input
-          type="text"
-          value={clues.across[number] || ''}
-          onChange={(e) =>
-            setClues((prev) => ({
-              ...prev,
-              across: { ...prev.across, [number]: e.target.value }
-            }))
-          }
-          placeholder="Enter clue"
-          style={{ marginBottom: '5px', width: '300px' }}
-        />
-      </label>
-    </div>
-  ))}
+        <h3>Across</h3>
+        {Object.entries(generateNumberedGrid(grid).across).map(([number, { row, col }]) => (
+          <div key={`across-${number}`}>
+            <label>
+              {number}. <input
+                type="text"
+                value={clues.across[number] || ''}
+                onChange={(e) =>
+                  setClues((prev) => ({
+                    ...prev,
+                    across: { ...prev.across, [number]: e.target.value }
+                  }))
+                }
+                placeholder="Enter clue"
+                style={{ marginBottom: '5px', width: '300px' }}
+              />
+            </label>
+          </div>
+        ))}
 
-  <h3>Down</h3>
-  {Object.entries(generateNumberedGrid(grid).down).map(([number, { row, col }]) => (
-    <div key={`down-${number}`}>
-      <label>
-        {number}. <input
-          type="text"
-          value={clues.down[number] || ''}
-          onChange={(e) =>
-            setClues((prev) => ({
-              ...prev,
-              down: { ...prev.down, [number]: e.target.value }
-            }))
-          }
-          placeholder="Enter clue"
-          style={{ marginBottom: '5px', width: '300px' }}
-        />
-      </label>
-    </div>
-  ))}
-</div>
+        <h3>Down</h3>
+        {Object.entries(generateNumberedGrid(grid).down).map(([number, { row, col }]) => (
+          <div key={`down-${number}`}>
+            <label>
+              {number}. <input
+                type="text"
+                value={clues.down[number] || ''}
+                onChange={(e) =>
+                  setClues((prev) => ({
+                    ...prev,
+                    down: { ...prev.down, [number]: e.target.value }
+                  }))
+                }
+                placeholder="Enter clue"
+                style={{ marginBottom: '5px', width: '300px' }}
+              />
+            </label>
+          </div>
+        ))}
+      </div>
 
       <div style={{ marginTop: '20px' }}>
         <h2>📝 Clues</h2>
