@@ -7,7 +7,7 @@ function App() {
   const [grid, setGrid] = useState(generateEmptyGrid(5));
   const [clues, setClues] = useState({
     across: {},
-    down: {}
+    down: {},
   });
 
   function generateEmptyGrid(size) {
@@ -54,6 +54,14 @@ function App() {
 
   const numberedGrid = generateNumberedGrid(grid);
   const { across, down } = extractClues(numberedGrid);
+
+  // Map clues by number for consistent rendering
+  const acrossCluesByNumber = Object.fromEntries(
+    across.map((clue) => [clue.number, clue])
+  );
+  const downCluesByNumber = Object.fromEntries(
+    down.map((clue) => [clue.number, clue])
+  );
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
@@ -132,54 +140,46 @@ function App() {
         <h2>📝 Clues</h2>
 
         <h3>Across</h3>
-        {across && Object.entries(across).length > 0 ? (
-          Object.entries(across).map(([number, { row, col }]) => (
-            <div key={`across-${number}`}>
-              <label>
-                {parseInt(number) + 1}.{' '}
-                <input
-                  type="text"
-                  value={clues.across[number] || ''}
-                  onChange={(e) =>
-                    setClues((prev) => ({
-                      ...prev,
-                      across: { ...prev.across, [number]: e.target.value },
-                    }))
-                  }
-                  placeholder="Enter clue"
-                  style={{ marginBottom: '5px', width: '300px' }}
-                />
-              </label>
-            </div>
-          ))
-        ) : (
-          <p>No across clues available.</p>
-        )}
+        {Object.entries(acrossCluesByNumber).map(([number, clue]) => (
+          <div key={`across-${number}`}>
+            <label>
+              {number}.{' '}
+              <input
+                type="text"
+                value={clues.across[number] || ''}
+                onChange={(e) =>
+                  setClues((prev) => ({
+                    ...prev,
+                    across: { ...prev.across, [number]: e.target.value },
+                  }))
+                }
+                placeholder={`Clue for "${clue.word}"`}
+                style={{ marginBottom: '5px', width: '300px' }}
+              />
+            </label>
+          </div>
+        ))}
 
         <h3>Down</h3>
-        {down && Object.entries(down).length > 0 ? (
-          Object.entries(down).map(([number, { row, col }]) => (
-            <div key={`down-${number}`}>
-              <label>
-                {parseInt(number) + 1}.{' '}
-                <input
-                  type="text"
-                  value={clues.down[number] || ''}
-                  onChange={(e) =>
-                    setClues((prev) => ({
-                      ...prev,
-                      down: { ...prev.down, [number]: e.target.value },
-                    }))
-                  }
-                  placeholder="Enter clue"
-                  style={{ marginBottom: '5px', width: '300px' }}
-                />
-              </label>
-            </div>
-          ))
-        ) : (
-          <p>No down clues available.</p>
-        )}
+        {Object.entries(downCluesByNumber).map(([number, clue]) => (
+          <div key={`down-${number}`}>
+            <label>
+              {number}.{' '}
+              <input
+                type="text"
+                value={clues.down[number] || ''}
+                onChange={(e) =>
+                  setClues((prev) => ({
+                    ...prev,
+                    down: { ...prev.down, [number]: e.target.value },
+                  }))
+                }
+                placeholder={`Clue for "${clue.word}"`}
+                style={{ marginBottom: '5px', width: '300px' }}
+              />
+            </label>
+          </div>
+        ))}
       </div>
     </div>
   );
