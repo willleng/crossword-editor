@@ -136,7 +136,7 @@ function App() {
           Object.entries(across).map(([number, { row, col }]) => (
             <div key={`across-${number}`}>
               <label>
-                {number}.{' '}
+                {parseInt(number) + 1}.{' '}
                 <input
                   type="text"
                   value={clues.across[number] || ''}
@@ -161,7 +161,7 @@ function App() {
           Object.entries(down).map(([number, { row, col }]) => (
             <div key={`down-${number}`}>
               <label>
-                {number}.{' '}
+                {parseInt(number) + 1}.{' '}
                 <input
                   type="text"
                   value={clues.down[number] || ''}
