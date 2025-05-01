@@ -5,10 +5,7 @@ import { extractClues } from './extractClues';
 function App() {
   const [size, setSize] = useState(5);
   const [grid, setGrid] = useState(generateEmptyGrid(5));
-  const [clues, setClues] = useState({
-    across: {},
-    down: {},
-  });
+  const [clues, setClues] = useState({ across: {}, down: {} });
 
   function generateEmptyGrid(size) {
     return Array.from({ length: size }, () =>
@@ -52,16 +49,30 @@ function App() {
     link.click();
   };
 
+  const handleImportJson = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        if (data.size && data.grid && data.clues) {
+          setSize(data.size);
+          setGrid(data.grid);
+          setClues(data.clues);
+        } else {
+          alert('Invalid puzzle file format.');
+        }
+      } catch (err) {
+        alert('Failed to load puzzle.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const numberedGrid = generateNumberedGrid(grid);
   const { across, down } = extractClues(numberedGrid);
-
-  // Map clues by number for consistent rendering
-  const acrossCluesByNumber = Object.fromEntries(
-    across.map((clue) => [clue.number, clue])
-  );
-  const downCluesByNumber = Object.fromEntries(
-    down.map((clue) => [clue.number, clue])
-  );
 
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
@@ -132,16 +143,25 @@ function App() {
         )}
       </div>
 
-      <button onClick={exportToJson} style={{ padding: '10px 20px' }}>
-        📤 Export Puzzle as JSON
-      </button>
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={exportToJson} style={{ padding: '10px 20px' }}>
+          📤 Export Puzzle as JSON
+        </button>
+
+        <input
+          type="file"
+          accept="application/json"
+          onChange={handleImportJson}
+          style={{ marginLeft: '10px' }}
+        />
+      </div>
 
       <div style={{ marginTop: '30px' }}>
         <h2>📝 Clues</h2>
 
         <h3>Across</h3>
-        {Object.entries(acrossCluesByNumber).map(([number, clue]) => (
-          <div key={`across-${number}`}>
+        {across.map(({ number }) => (
+          <div key={`clue-across-${number}`}>
             <label>
               {number}.{' '}
               <input
@@ -153,7 +173,7 @@ function App() {
                     across: { ...prev.across, [number]: e.target.value },
                   }))
                 }
-                placeholder={`Clue for "${clue.word}"`}
+                placeholder="Enter clue"
                 style={{ marginBottom: '5px', width: '300px' }}
               />
             </label>
@@ -161,8 +181,8 @@ function App() {
         ))}
 
         <h3>Down</h3>
-        {Object.entries(downCluesByNumber).map(([number, clue]) => (
-          <div key={`down-${number}`}>
+        {down.map(({ number }) => (
+          <div key={`clue-down-${number}`}>
             <label>
               {number}.{' '}
               <input
@@ -174,7 +194,7 @@ function App() {
                     down: { ...prev.down, [number]: e.target.value },
                   }))
                 }
-                placeholder={`Clue for "${clue.word}"`}
+                placeholder="Enter clue"
                 style={{ marginBottom: '5px', width: '300px' }}
               />
             </label>
